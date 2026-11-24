@@ -18,7 +18,7 @@ header{background:#fff;border-bottom:1px solid var(--line)}
 .top{display:flex;align-items:center;gap:14px;height:76px}
 .top img{height:44px;width:auto}
 .top b{font-size:20px;font-weight:800}
-.top .tag{margin-left:auto;font-size:13px;font-weight:600;color:var(--gr);background:var(--soft);padding:7px 14px;border-radius:999px}
+.top .tag{margin-left:auto;font-size:13px;font-weight:600;color:var(--gr);background:var(--soft);padding:7px 14px;border-radius:999px;white-space:nowrap}
 .hero{padding:40px 0 10px}
 h1{font-size:clamp(28px,4vw,44px);font-weight:800;letter-spacing:-.02em}
 h1 span{color:var(--or)}
@@ -51,6 +51,7 @@ body.v .screen video{aspect-ratio:9/16}
 .note{font-size:13px;color:var(--gr);margin-top:14px}
 footer{background:var(--ink);color:#cfccc8;font-size:14px;padding:26px 0}
 footer a{color:#fff}
+@media(max-width:480px){.top .tag{font-size:11px;padding:6px 10px}.top img{height:36px}.top b{font-size:17px}}
 @media(max-width:900px){.player,body.v .player{grid-template-columns:1fr}body.v .screen{max-width:420px;margin:0 auto;width:100%}.posters{grid-template-columns:1fr}}
 </style>
 </head>

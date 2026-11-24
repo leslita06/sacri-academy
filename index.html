@@ -31,6 +31,7 @@ h1 span{color:var(--or)}
 .screen video{display:block;width:100%;aspect-ratio:16/9;background:#000}
 body.v .player{grid-template-columns:minmax(0,420px) 1fr}
 body.v .screen video{aspect-ratio:9/16}
+.screen{position:relative}.st{position:absolute;left:50%;bottom:18px;transform:translateX(-50%);background:rgba(16,15,14,.85);color:#fff;font-size:14px;font-weight:600;padding:8px 16px;border-radius:999px;pointer-events:none}.st[hidden]{display:none}
 .side{background:#fff;border-radius:20px;padding:22px}
 .side h2{font-size:18px;font-weight:800;margin-bottom:12px}
 .side ol{list-style:none;counter-reset:s}
@@ -65,7 +66,7 @@ footer a{color:#fff}
     </div>
   </section>
   <section class="player">
-    <div class="screen"><video id="vid" controls playsinline preload="metadata" poster="affiche-16x9.jpg"><source id="src" src="videos/SACRI_academy_16x9.mp4" type="video/mp4"></video></div>
+    <div class="screen"><video id="vid" controls playsinline preload="auto" poster="affiche-16x9.jpg"></video><p class="st" id="st">Chargement du film…</p></div>
     <aside class="side">
       <h2>Dans le film</h2>
       <ol>
@@ -78,8 +79,8 @@ footer a{color:#fff}
       </ol>
       <a class="cta" href="https://wa.me/?text=Bonjour%20SACRI%2C%20je%20souhaite%20m%27inscrire%20%C3%A0%20la%20SACRI%20Academy." target="_blank" rel="noopener">Je m’inscris sur WhatsApp</a>
       <div class="dl">
-        <a href="videos/SACRI_academy_16x9.mp4" download>Film horizontal <small>MP4 · 7,6 Mo</small></a>
-        <a href="videos/SACRI_academy_9x16.mp4" download>Film vertical <small>MP4 · 7,9 Mo</small></a>
+        <a href="#" data-f="16x9">Film horizontal <small>MP4 · 7,6 Mo</small></a>
+        <a href="#" data-f="9x16">Film vertical <small>MP4 · 7,9 Mo</small></a>
       </div>
     </aside>
   </section>
@@ -94,17 +95,27 @@ footer a{color:#fff}
 </main>
 <footer><div class="wrap">SACRI, Bd de Marseille, face SIVOA, Abidjan. <a href="https://www.sacri-ci.com" target="_blank" rel="noopener">www.sacri-ci.com</a></div></footer>
 <script>
-var V='202611241520';
-var vid=document.getElementById('vid'),src=document.getElementById('src');
+var V='202611241600', N=4, cache={}, cur='16x9';
+var vid=document.getElementById('vid'), st=document.getElementById('st');
+function load(f){
+  if(cache[f]) return Promise.resolve(cache[f]);
+  var ps=[]; for(var i=0;i<N;i++) ps.push(fetch('videos/SACRI_academy_'+f+'.part'+i+'?v='+V).then(function(r){if(!r.ok) throw new Error(r.status); return r.arrayBuffer();}));
+  return Promise.all(ps).then(function(b){cache[f]=URL.createObjectURL(new Blob(b,{type:'video/mp4'})); return cache[f];});
+}
 function setF(f){
-  document.body.classList.toggle('v',f==='9x16');
-  src.src='videos/SACRI_academy_'+f+'.mp4?v='+V;
+  cur=f; document.body.classList.toggle('v',f==='9x16');
+  vid.removeAttribute('src'); vid.load();
   vid.poster=(f==='9x16'?'affiche-4x5.jpg':'affiche-16x9.jpg')+'?v='+V;
-  vid.load();
   document.querySelectorAll('.tabs button').forEach(function(b){b.setAttribute('aria-pressed',b.dataset.f===f)});
+  st.textContent='Chargement du film\u2026'; st.hidden=false;
+  load(f).then(function(u){ if(cur!==f) return; vid.src=u; st.hidden=true; }).catch(function(){ st.textContent='Le film n\u2019a pas pu se charger. Rechargez la page.'; });
 }
 document.querySelectorAll('.tabs button').forEach(function(b){b.addEventListener('click',function(){setF(b.dataset.f)})});
-src.src='videos/SACRI_academy_16x9.mp4?v='+V; vid.load();
+document.querySelectorAll('.dl a').forEach(function(a){a.addEventListener('click',function(e){
+  e.preventDefault(); var f=a.dataset.f, lab=a.querySelector('small'), old=lab.textContent; lab.textContent='Préparation\u2026';
+  load(f).then(function(u){var x=document.createElement('a');x.href=u;x.download='SACRI_academy_'+f+'.mp4';document.body.appendChild(x);x.click();x.remove();lab.textContent=old;});
+})});
+setF('16x9');
 </script>
 </body>
 </html>
